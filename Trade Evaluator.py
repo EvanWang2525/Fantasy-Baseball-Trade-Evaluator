@@ -181,8 +181,8 @@ st.subheader("📊 Trade Results")
 import matplotlib.pyplot as plt
 
 # Fair bounds (adjust tolerance here)
-fair_lower = 0.5 - st.session_state.trade_margin
-fair_upper = 0.5 + st.session_state.trade_margin
+fair_lower = 0.5 - (st.session_state.trade_margin / 2)
+fair_upper = 0.5 + (st.session_state.trade_margin / 2)
 
 fig, ax = plt.subplots(figsize=(8, 1))
 
@@ -230,9 +230,6 @@ ax.text(
 
 st.pyplot(fig)
 
-# Show percentage text
-# st.caption(f"Trade Partner Share: {position*100:.1f}%")
-
 
 colA, colB, colC = st.columns(3)
 
@@ -250,18 +247,9 @@ with colC:
 
 # ----- Improved Verdict Logic -----
 
-if receive_value > 0:
-    threshold = st.session_state.trade_margin * receive_value
-else:
-    threshold = 0
-
-if net_value > threshold:
+if position > 0.5 + (st.session_state.trade_margin / 2):
     st.success("✅ Favors Your Team")
-# elif 0 < net_value <= threshold:
-#     st.info("🟢 Slightly Favors You")
-# elif -threshold <= net_value < 0:
-#     st.warning("🟡 Slightly Favors Trade Partner")
-elif net_value < -threshold:
+elif position < 0.5 - (st.session_state.trade_margin / 2):
     st.error("❌ Favors Trade Partner")
 else:
     st.info("⚖️ Even Trade")
