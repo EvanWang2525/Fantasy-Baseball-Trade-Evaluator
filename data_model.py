@@ -112,8 +112,8 @@ def load_model(
     # Unique display field
     fantrax["Player_Salary_Team"] = (
         fantrax["Player"].astype(str)
-        + "_$" + fantrax["Salary"].astype(str)
-        + "_" + fantrax["Status"].astype(str)
+        + " | $" + fantrax["Salary"].astype(str)
+        + " | " + fantrax["Status"].astype(str)
     )
 
     return fantrax
