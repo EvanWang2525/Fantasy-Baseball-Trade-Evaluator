@@ -274,12 +274,10 @@ if send_players:
         )
 
     with colF2:
-        rec_position_filter = st.selectbox(
-            "Filter by Position",
-            ["All"] + sorted(
-                fantrax["Position"].dropna().unique()
+            position_filter = st.multiselect(
+                "Filter by Position", 
+                ["P", "C", "1B", "2B", "3B", "SS", "OF", "UT"]
             )
-        )
 
     with colF3:
         rec_limit = st.number_input(
@@ -302,8 +300,12 @@ if send_players:
         pool = pool[pool["Status"] == rec_team_filter]
 
     # Apply position filter
-    if rec_position_filter != "All":
-        pool = pool[pool["Position"] == rec_position_filter]
+    if position_filter:
+        pool = pool[
+        pool["Position"].apply(
+            lambda pos: any(p in pos for p in position_filter)
+        )
+    ]
 
     # -------- BUILD RECOMMENDATION TABLE --------
     rec_df = pool[[
@@ -351,19 +353,6 @@ if send_players and not rec_df.empty:
         st.session_state.receive_players = [chosen_player]
 
         st.rerun()
-
-    # if st.button("Load Suggested Trade"):
-
-    #     selected_team = rec_df.loc[
-    #         rec_df["Player_Salary_Team"] == chosen_player,
-    #         "Status"
-    #     ].values[0]
-        
-    #     # Store pending overrides
-    #     st.session_state._pending_trade_partner = selected_team
-    #     st.session_state._pending_receive = [chosen_player]
-
-    #     st.rerun()
 
 
 # -----------------------------
