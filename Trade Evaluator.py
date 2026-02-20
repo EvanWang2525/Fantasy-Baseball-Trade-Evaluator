@@ -276,7 +276,7 @@ if send_players:
     with colF2:
             position_filter = st.multiselect(
                 "Filter by Position", 
-                ["P", "C", "1B", "2B", "3B", "SS", "OF", "UT"]
+                ["SP", "RP", "C", "1B", "2B", "3B", "SS", "OF", "UT"]
             )
 
     with colF3:
