@@ -93,7 +93,6 @@ def load_model(
 
     # Salary math
     fantrax["Fair_Salary"] = fantrax["Score_NPV"] * dollars_per_pt
-    # fantrax["Surplus_Salary"] = fantrax["Fair_Salary"] - (fantrax["Salary"] * salary_weight)
 
     fantrax["Dynasty_Salary"] = fantrax["Value"] * dynasty_dollars_per_pt
 
