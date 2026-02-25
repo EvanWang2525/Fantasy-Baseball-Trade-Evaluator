@@ -36,6 +36,12 @@ player_filter = st.sidebar.multiselect(
     options=player_options
 )
 
+# ---- Position Filter ----
+position_filter = st.multiselect(
+    "Position",
+    ["SP", "RP", "C", "1B", "2B", "3B", "SS", "OF", "UT"]
+)
+
 # ---- Contract Filter ----
 contract_options = sorted(fantrax["Contract"].dropna().unique())
 contract_filter = st.sidebar.multiselect(
@@ -69,6 +75,12 @@ if status_filter != "All":
 if player_filter:
     filtered_df = filtered_df[
         filtered_df["Player"].isin(player_filter)
+    ]
+
+# Apply Position
+if position_filter:
+    filtered_df = filtered_df[
+        filtered_df["Position"].isin(position_filter)
     ]
 
 # Apply Contract
