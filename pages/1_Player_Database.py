@@ -37,7 +37,7 @@ player_filter = st.sidebar.multiselect(
 )
 
 # ---- Position Filter ----
-position_filter = st.multiselect(
+position_filter = st.sidebar.multiselect(
     "Position",
     ["SP", "RP", "C", "1B", "2B", "3B", "SS", "OF", "UT"]
 )
