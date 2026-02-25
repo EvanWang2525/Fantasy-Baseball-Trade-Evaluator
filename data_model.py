@@ -70,13 +70,29 @@ def load_model(
     fantrax = fantrax.drop(['RkOv', 'Opponent', '+/-'], axis=1)
 
     # $ per point
-    total_pts = fantrax.loc[fantrax["Status"] != "FA"]["Score"].sum()
+    excluded_statuses = [
+    "FA",
+    "W <small>(Wed)</small>",
+    "W <small>(Tue)</small>"
+    ]
+    
+    total_pts = (
+        fantrax
+        .loc[~fantrax["Status"]
+        .isin(excluded_statuses)]["Score"]
+        .sum()
+    )
     dollars_per_pt = (265 * 30) / total_pts
 
     # Merge
     fantrax = fantrax.merge(dynasty, how="left", on=["Player", "Team"])
 
-    dynasty_pts = fantrax.loc[fantrax["Status"] != "FA"]["Value"].sum()
+    dynasty_pts = (
+        fantrax
+        .loc[~fantrax["Status"]
+        .isin(excluded_statuses)]["Value"]
+        .sum()
+    )
     dynasty_dollars_per_pt = (265 * 30) / dynasty_pts
 
     # Apply NPV
@@ -108,6 +124,16 @@ def load_model(
 
     fantrax["Net_Value"] = fantrax["Total_Value"] - (fantrax["Salary"] * salary_weight)
 
+    fantrax["Alternate_Value"] = (
+        fantrax["Score"] + 
+        fantrax["Dynasty_Salary"] +
+        fantrax["Control"]
+    )
+
+    fantrax["Net_Alternate_Value"] = (
+        fantrax["Alternate_Value"] - (fantrax["Salary"] * salary_weight)
+    )
+    
     # Unique display field
     fantrax["Player_Salary_Team"] = (
         fantrax["Player"].astype(str)
