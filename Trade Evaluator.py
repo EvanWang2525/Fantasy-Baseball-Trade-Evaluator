@@ -124,7 +124,7 @@ def trade_value(player_list):
     return (
         subset["Net_Value_Old"].sum(),
         subset["Salary"].sum(),
-        subset["Net_True_Value"].sum(
+        subset["Net_True_Value"].sum()
     )
 
 def apply_package_discount(total_value, player_count, discount_pct):
