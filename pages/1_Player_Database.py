@@ -11,6 +11,7 @@ fantrax = load_model(
     st.session_state.r,
     st.session_state.g_pre30,
     st.session_state.g_post30,
+    st.session_state.salary_weight,
     st.session_state.control_weight
 )
 
