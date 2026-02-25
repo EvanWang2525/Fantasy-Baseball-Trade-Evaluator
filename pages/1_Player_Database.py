@@ -101,11 +101,11 @@ filtered_df = filtered_df[
 # DISPLAY TABLE
 # -----------------------------
 st.dataframe(
-    filtered_df[["Player", "Position", "Status", "Age", 
-                 "Salary", "Contract", "Score", "Value",
-                 "Fair Salary", "Dynasty_Salary", "Control",
-                 "Total_Value_Old", "Net_Value_Old", 
-                 "True_Value", "Net_True_Value"]]
-    .sort_values("Net_True_Value", ascending=False),
+    (filtered_df
+     [["Player", "Position", "Status", "Age", "Salary", "Contract", 
+       "Score", "Value", "Fair Salary", "Dynasty_Salary", "Control",
+       "Total_Value_Old", "Net_Value_Old", "True_Value", "Net_True_Value"]]
+    .sort_values("Net_True_Value", ascending=False)
+    ),
     use_container_width=True
 )
