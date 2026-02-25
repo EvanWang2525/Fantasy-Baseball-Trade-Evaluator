@@ -402,6 +402,6 @@ if send_players or receive_players:
     ]]
 
     st.dataframe(
-        breakdown.sort_values("Net_Value", ascending=False),
+        breakdown.sort_values("Net_True_Value", ascending=False),
         use_container_width=True
     )
