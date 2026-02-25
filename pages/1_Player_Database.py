@@ -103,7 +103,7 @@ filtered_df = filtered_df[
 st.dataframe(
     (filtered_df
      [["Player", "Position", "Status", "Age", "Salary", "Contract", 
-       "Score", "Value", "Fair Salary", "Dynasty_Salary", "Control",
+       "Score", "Value", "Fair_Salary", "Dynasty_Salary", "Control",
        "Total_Value_Old", "Net_Value_Old", "True_Value", "Net_True_Value"]]
     .sort_values("Net_True_Value", ascending=False)
     ),
