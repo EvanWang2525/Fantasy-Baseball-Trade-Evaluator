@@ -116,22 +116,22 @@ def load_model(
         (5 - pd.to_numeric(fantrax["Contract"].str[:-2])) * control_weight
     )
 
-    fantrax["Total_Value"] = (
+    fantrax["Total_Value_Old"] = (
         fantrax["Fair_Salary"]
         + fantrax["Dynasty_Salary"]
         + fantrax["Control"]
     )
 
-    fantrax["Net_Value"] = fantrax["Total_Value"] - (fantrax["Salary"] * salary_weight)
+    fantrax["Net_Value_Old"] = fantrax["Total_Value"] - (fantrax["Salary"] * salary_weight)
 
-    fantrax["Alternate_Value"] = (
+    fantrax["True_Value"] = (
         fantrax["Score"] + 
         fantrax["Dynasty_Salary"] +
         fantrax["Control"]
     )
 
-    fantrax["Net_Alternate_Value"] = (
-        fantrax["Alternate_Value"] - (fantrax["Salary"] * salary_weight)
+    fantrax["Net_True_Value"] = (
+        fantrax["True_Value"] - (fantrax["Salary"] * salary_weight)
     )
     
     # Unique display field
