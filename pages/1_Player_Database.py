@@ -80,7 +80,9 @@ if player_filter:
 # Apply Position
 if position_filter:
     filtered_df = filtered_df[
-        filtered_df["Position"].isin(position_filter)
+        filtered_df["Position"].apply(
+            lambda pos: any(p in pos for p in position_filter)
+        )
     ]
 
 # Apply Contract
