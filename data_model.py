@@ -122,7 +122,7 @@ def load_model(
         + fantrax["Control"]
     )
 
-    fantrax["Net_Value_Old"] = fantrax["Total_Value"] - (fantrax["Salary"] * salary_weight)
+    fantrax["Net_Value_Old"] = fantrax["Total_Value_Old"] - (fantrax["Salary"] * salary_weight)
 
     fantrax["True_Value"] = (
         fantrax["Score"] + 
