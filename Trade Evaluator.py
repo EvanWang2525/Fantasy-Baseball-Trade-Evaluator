@@ -122,9 +122,9 @@ def trade_value(player_list):
         return 0, 0, 0
     subset = fantrax[fantrax["Player_Salary_Team"].isin(player_list)]
     return (
-        subset["Net_Value"].sum(),
+        subset["Net_Value_Old"].sum(),
         subset["Salary"].sum(),
-        subset["Alternate_Value"].sum(
+        subset["Net_True_Value"].sum(
     )
 
 def apply_package_discount(total_value, player_count, discount_pct):
@@ -136,39 +136,39 @@ def apply_package_discount(total_value, player_count, discount_pct):
         return total_value * (1 - discount_pct)
     return total_value
 
-send_raw_value, send_salary, send_raw_alternate = trade_value(send_players)
-receive_raw_value, receive_salary, receive_raw_alternate = trade_value(receive_players)
+send_raw_old, send_salary, send_raw_true = trade_value(send_players)
+receive_raw_old, receive_salary, receive_raw_true = trade_value(receive_players)
 
-send_value = apply_package_discount(
-    send_raw_value,
+send_old = apply_package_discount(
+    send_raw_old,
     len(send_players),
     st.session_state.multi_player_discount
 )
 
-send_alternate = apply_package_discount(
-    send_raw_alternate,
+send_true = apply_package_discount(
+    send_raw_true,
     len(send_players),
     st.session_state.multi_player_discount
 )
 
-receive_value = apply_package_discount(
-    receive_raw_value,
+receive_old = apply_package_discount(
+    receive_raw_old,
     len(receive_players),
     st.session_state.multi_player_discount
 )
 
-receive_alternate = apply_package_discount(
-    receive_raw_alternate,
+receive_true = apply_package_discount(
+    receive_raw_true,
     len(receive_players),
     st.session_state.multi_player_discount
 )
 
-net_value = receive_value - send_value
+net_value_old = receive_old - send_old
 net_salary = receive_salary - send_salary
-net_alternate = receive_alternate - send_alternate
+net_value_true = receive_true - send_true
 
-st.write(f"Send Value (Raw): {send_raw_alternate:.2f}")
-st.write(f"Receive Value (Raw): {receive_raw_alternate:.2f}")
+st.write(f"Send Value (Raw): {send_raw_true:.2f}")
+st.write(f"Receive Value (Raw): {receive_raw_true:.2f}")
 
 if len(send_players) > 1:
     st.write(f"Package discount applied to send side ({st.session_state.multi_player_discount:.0%})")
@@ -176,18 +176,18 @@ if len(send_players) > 1:
 if len(receive_players) > 1:
     st.write(f"Package discount applied to receive side ({st.session_state.multi_player_discount:.0%})")
 
-st.write(f"Net Value After Discount: {net_alternate:.2f}")
+st.write(f"Net Value After Discount: {net_value_true:.2f}")
 
 # -----------------------------
 # TRADE Graph and TRADE VERDICT
 # -----------------------------
 
-total = send_alternate + receive_alternate
+total = send_true + receive_true
 
 if total == 0:
     position = 0.5
 else:
-    position = receive_alternate / total  # value between 0 and 1
+    position = receive_true / total  # value between 0 and 1
 
 st.divider()
 st.subheader("📊 Trade Results")
@@ -248,19 +248,19 @@ st.pyplot(fig)
 colA, colB, colC = st.columns(3)
 
 with colA:
-    st.metric("Value Sent", round(send_alternate, 2))
+    st.metric("Value Sent", round(send_true, 2))
     st.metric("Salary Sent", round(send_salary, 2))
-    st.metric("Value Sent (Old)", round(send_value, 2))
+    st.metric("Value Sent (Old)", round(send_old, 2))
 
 with colB:
-    st.metric("Value Received", round(receive_alternate, 2))
+    st.metric("Value Received", round(receive_true, 2))
     st.metric("Salary Received", round(receive_salary, 2))
-    st.metric("Value Received (Old)", round(receive_value, 2))
+    st.metric("Value Received (Old)", round(receive_old, 2))
 
 with colC:
-    st.metric("Net Value", round(net_alternate, 2))
+    st.metric("Net Value", round(net_value_true, 2))
     st.metric("Net Salary Change", round(net_salary, 2))
-    st.metric("Net Value (Old)", round(net_value, 2))
+    st.metric("Net Value (Old)", round(net_value_old, 2))
 
 # ----- Improved Verdict Logic -----
 
@@ -279,7 +279,7 @@ if send_players:
     st.divider()
     st.subheader("🤖 1-for-1 Trade Recommendations")
 
-    sent_total_value = send_alternate
+    sent_total_value = send_true
 
     # -------- FILTER CONTROLS --------
     colF1, colF2, colF3 = st.columns(3)
@@ -329,13 +329,13 @@ if send_players:
         "Player_Salary_Team",
         "Status",
         "Position",
-        "Total_Value",
-        "Net_Value",
-        "Alternate_Value",
-        "Net_Alternate_Value"
+        "Total_Value_Old",
+        "Net_Value_Old",
+        "True_Value",
+        "Net_True_Value"
     ]].copy()
 
-    rec_df["Difference"] = rec_df["Net_Alternate_Value"] - sent_total_value
+    rec_df["Difference"] = rec_df["Net_True_Value"] - sent_total_value
     rec_df["Abs_Diff"] = rec_df["Difference"].abs()
 
     # Sort from smallest to largest difference
@@ -346,10 +346,10 @@ if send_players:
             "Player_Salary_Team",
             "Status",
             "Position",
-            "Total_Value",
-            "Net_Value",
-            "Alternate_Value",
-            "Net_Alternate_Value",
+            "Total_Value_Old",
+            "Net_Value_Old",
+            "True_Value",
+            "Net_True_Value",
             "Difference"
         ]],
         use_container_width=True
@@ -395,10 +395,10 @@ if send_players or receive_players:
         "Fair_Salary",
         "Dynasty_Salary",
         "Control",
-        "Total_Value",
-        "Net_Value",
-        "Alternate_Value",
-        "Net_Alternate_Value"
+        "Total_Value_Old",
+        "Net_Value_Old",
+        "True_Value",
+        "Net_True_Value"
     ]]
 
     st.dataframe(
