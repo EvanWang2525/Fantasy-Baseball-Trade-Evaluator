@@ -126,9 +126,7 @@ def load_model(
 
     fantrax["True_Value"] = (
         fantrax["Score"] + 
-        (fantrax["Dynasty_Salary"] * 
-         ((5 - pd.to_numeric(fantrax["Contract"].str[:-2])) / 5)
-        ) +
+        fantrax["Dynasty_Salary"] +
         fantrax["Control"]
     )
 
