@@ -282,7 +282,7 @@ if send_players:
     sent_total_value = send_true
 
     # -------- FILTER CONTROLS --------
-    colF1, colF2, colF3 = st.columns(3)
+    colF1, colF2, colF3, colF4 = st.columns(4)
 
     with colF1:
         rec_team_filter = st.selectbox(
@@ -303,6 +303,13 @@ if send_players:
             max_value=100,
             value=10,
             step=5
+        )
+
+    with colF4:
+        rank_filter = st.segmented_control(
+            "Ranking",
+            ["True Value", "Net True Value"],
+            default = "True Value"
         )
 
     # -------- BUILD FILTERED POOL --------
@@ -335,7 +342,11 @@ if send_players:
         "Net_True_Value"
     ]].copy()
 
-    rec_df["Difference"] = rec_df["Net_True_Value"] - sent_total_value
+    if rank_filter == "Net True Value":
+        rec_df["Difference"] = rec_df["Net_True_Value"] - sent_total_value
+    else: 
+        rec_df["Difference"] = rec_df["True_Value"] - sent_total_value + send_salary
+
     rec_df["Abs_Diff"] = rec_df["Difference"].abs()
 
     # Sort from smallest to largest difference
