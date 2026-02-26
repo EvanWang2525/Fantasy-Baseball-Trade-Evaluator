@@ -119,11 +119,12 @@ with col2:
 # -----------------------------
 def trade_value(player_list):
     if not player_list:
-        return 0, 0, 0
+        return 0, 0, 0, 0
     subset = fantrax[fantrax["Player_Salary_Team"].isin(player_list)]
     return (
         subset["Net_Value_Old"].sum(),
         subset["Salary"].sum(),
+        subset["True_Value"].sum(),
         subset["Net_True_Value"].sum()
     )
 
@@ -136,8 +137,8 @@ def apply_package_discount(total_value, player_count, discount_pct):
         return total_value * (1 - discount_pct)
     return total_value
 
-send_raw_old, send_salary, send_raw_true = trade_value(send_players)
-receive_raw_old, receive_salary, receive_raw_true = trade_value(receive_players)
+send_raw_old, send_salary, send_raw_true, send_raw_net_true = trade_value(send_players)
+receive_raw_old, receive_salary, receive_raw_true, receive_raw_net_true = trade_value(receive_players)
 
 send_old = apply_package_discount(
     send_raw_old,
@@ -147,6 +148,12 @@ send_old = apply_package_discount(
 
 send_true = apply_package_discount(
     send_raw_true,
+    len(send_players),
+    st.session_state.multi_player_discount
+)
+
+send_net_true = apply_package_discount(
+    send_raw_net_true,
     len(send_players),
     st.session_state.multi_player_discount
 )
@@ -163,12 +170,18 @@ receive_true = apply_package_discount(
     st.session_state.multi_player_discount
 )
 
+receive_net_true = apply_package_discount(
+    receive_raw_net_true,
+    len(receive_players),
+    st.session_state.multi_player_discount
+)
+
 net_value_old = receive_old - send_old
 net_salary = receive_salary - send_salary
-net_value_true = receive_true - send_true
+net_value_true = receive_net_true - send_net_true
 
-st.write(f"Send Value (Raw): {send_raw_true:.2f}")
-st.write(f"Receive Value (Raw): {receive_raw_true:.2f}")
+st.write(f"Send Value (Raw): {send_raw_net_true:.2f}")
+st.write(f"Receive Value (Raw): {receive_raw_net_true:.2f}")
 
 if len(send_players) > 1:
     st.write(f"Package discount applied to send side ({st.session_state.multi_player_discount:.0%})")
@@ -182,12 +195,12 @@ st.write(f"Net Value After Discount: {net_value_true:.2f}")
 # TRADE Graph and TRADE VERDICT
 # -----------------------------
 
-total = send_true + receive_true
+total = send_net_true + receive_net_true
 
 if total == 0:
     position = 0.5
 else:
-    position = receive_true / total  # value between 0 and 1
+    position = receive_net_true / total  # value between 0 and 1
 
 st.divider()
 st.subheader("📊 Trade Results")
@@ -248,12 +261,12 @@ st.pyplot(fig)
 colA, colB, colC = st.columns(3)
 
 with colA:
-    st.metric("Value Sent", round(send_true, 2))
+    st.metric("Value Sent", round(send_net_true, 2))
     st.metric("Salary Sent", round(send_salary, 2))
     st.metric("Value Sent (Old)", round(send_old, 2))
 
 with colB:
-    st.metric("Value Received", round(receive_true, 2))
+    st.metric("Value Received", round(receive_net_true, 2))
     st.metric("Salary Received", round(receive_salary, 2))
     st.metric("Value Received (Old)", round(receive_old, 2))
 
@@ -278,8 +291,6 @@ if send_players:
 
     st.divider()
     st.subheader("🤖 1-for-1 Trade Recommendations")
-
-    sent_total_value = send_true
 
     # -------- FILTER CONTROLS --------
     colF1, colF2, colF3, colF4 = st.columns(4)
@@ -308,8 +319,8 @@ if send_players:
     with colF4:
         rank_filter = st.segmented_control(
             "Ranking",
-            ["True Value", "Net True Value"],
-            default = "True Value"
+            ["Net True Value", "True Value"],
+            default = "Net True Value"
         )
 
     # -------- BUILD FILTERED POOL --------
@@ -342,12 +353,13 @@ if send_players:
         "Net_True_Value"
     ]].copy()
 
+    # Apply rank filter
     if rank_filter == "Net True Value":
-        rec_df["Difference"] = rec_df["Net_True_Value"] - sent_total_value
+        rec_df["Difference"] = rec_df["Net_True_Value"] - send_net_true
+        rec_df["Abs_Diff"] = rec_df["Difference"].abs()
     else: 
-        rec_df["Difference"] = rec_df["True_Value"] - sent_total_value + send_salary
-
-    rec_df["Abs_Diff"] = rec_df["Difference"].abs()
+        rec_df["Difference"] = rec_df["True_Value"] - send_true
+        rec_df["Abs_Diff"] = rec_df["Difference"].abs()
 
     # Sort from smallest to largest difference
     rec_df = rec_df.sort_values("Abs_Diff").head(rec_limit)
